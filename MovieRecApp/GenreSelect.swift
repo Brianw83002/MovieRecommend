@@ -1,17 +1,20 @@
 import SwiftUI
 
 struct GenreSelect: View {
+    @EnvironmentObject var movieStore: MovieStore
 
     @State private var selectedGenres: Set<String> = []
     @State private var showAlert = false
 
     @State private var goToMoviePage = false
 
-    let genres = [
-        "Action", "Comedy", "Drama", "Horror", "Sci-Fi",
-        "Romance", "Thriller", "Fantasy", "Animation",
-        "Documentary", "Mystery", "Adventure", "Family", "Crime"
-    ]
+//    let genres = [
+//        "Action", "Comedy", "Drama", "Horror", "Sci-Fi",
+//        "Romance", "Thriller", "Fantasy", "Animation",
+//        "Documentary", "Mystery", "Adventure", "Family", "Crime"
+//    ]
+    
+    let genres = Genre.allCases.map { $0.rawValue }
 
     var body: some View {
         NavigationStack {

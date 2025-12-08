@@ -2,7 +2,7 @@ import SwiftUI
 
 struct MovieRecPage: View {
 
-    let selectedGenres: [String]
+    let selectedGenres: [Genre]
 
     @State private var matchingMovies: [String] = []
     @State private var currentIndex: Int = 0
@@ -53,6 +53,8 @@ struct MovieRecPage: View {
 
     // MARK: Load & Filter Movies Based on New Format
     func loadMovies() {
+        let selectedGenres = self.selectedGenres.map { $0.rawValue }
+        
         guard let fileURL = Bundle.main.url(forResource: "movieList", withExtension: "txt"),
               let fileContents = try? String(contentsOf: fileURL) else {
             matchingMovies = ["Error loading movieList.txt"]
@@ -103,5 +105,5 @@ struct MovieRecPage: View {
 }
 
 #Preview {
-    MovieRecPage(selectedGenres: ["Action", "Comedy"])
+    MovieRecPage(selectedGenres: [.action, .comedy])
 }
