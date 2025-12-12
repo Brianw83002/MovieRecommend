@@ -93,7 +93,7 @@ struct GenreButton: View {
                 Spacer()
             }
             .padding()
-            .background(Color(UIColor.systemGray6))
+            .background(Color.gray.opacity(0.15))
             .cornerRadius(10)
         }
     }
