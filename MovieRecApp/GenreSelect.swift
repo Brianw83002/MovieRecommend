@@ -10,53 +10,54 @@ struct GenreSelect: View {
     let genres = Genre.allCases
 
     var body: some View {
-        NavigationStack {
-            VStack(alignment: .leading, spacing: 20) {
+        // *** FIX: The redundant NavigationStack has been REMOVED here ***
+        VStack(alignment: .leading, spacing: 20) {
 
-                HStack {
-                    Text("Select a Genre")
-                        .font(.largeTitle)
-                        .fontWeight(.bold)
-                    Spacer()
-                    Button(action: handleContinue) {
-                        Text("Continue")
-                            .padding(.horizontal, 16)
-                            .padding(.vertical, 10)
-                            .background(Color.blue)
-                            .foregroundColor(.white)
-                            .cornerRadius(10)
-                    }
-                }
-
-                ScrollView {
-                    VStack(spacing: 12) {
-                        ForEach(genres) { genre in
-                            GenreButton(
-                                title: genre.rawValue,
-                                isSelected: selectedGenres.contains(genre),
-                                action: { toggleSelection(for: genre) }
-                            )
-                        }
-                    }
-                    .padding(.vertical)
-                }
-
+            HStack {
+                Text("Select a Genre")
+                    .font(.largeTitle)
+                    .fontWeight(.bold)
                 Spacer()
-
-                // NavigationLink for programmatic navigation
-                NavigationLink(
-                    destination: MovieRecPage(selectedGenres: Array(selectedGenres))
-                        .environmentObject(movieStore),
-                    isActive: $goToMoviePage
-                ) {
-                    EmptyView()
+                Button(action: handleContinue) {
+                    Text("Continue")
+                        .padding(.horizontal, 16)
+                        .padding(.vertical, 10)
+                        .background(Color.blue)
+                        .foregroundColor(.white)
+                        .cornerRadius(10)
                 }
             }
-            .padding()
-            .alert("Please select at least one genre", isPresented: $showAlert) {
-                Button("OK", role: .cancel) {}
+
+            ScrollView {
+                VStack(spacing: 12) {
+                    ForEach(genres) { genre in
+                        GenreButton(
+                            title: genre.rawValue,
+                            isSelected: selectedGenres.contains(genre),
+                            action: { toggleSelection(for: genre) }
+                        )
+                    }
+                }
+                .padding(.vertical)
+            }
+
+            Spacer()
+
+            
+            NavigationLink(
+                destination: MovieRecPage(selectedGenres: Array(selectedGenres))
+                    .environmentObject(movieStore),
+                isActive: $goToMoviePage
+            ) {
+                EmptyView()
             }
         }
+        .padding()
+        .alert("Please select at least one genre", isPresented: $showAlert) {
+            Button("OK", role: .cancel) {}
+        }
+        .navigationTitle("Genre Selection")
+        
     }
 
     func toggleSelection(for genre: Genre) {

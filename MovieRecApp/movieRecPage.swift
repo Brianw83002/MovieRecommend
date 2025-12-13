@@ -14,7 +14,19 @@ struct MovieRecPage: View {
                 .fontWeight(.bold)
 
             if !matchingMovies.isEmpty {
-                VStack(spacing: 10) {
+                VStack(spacing: 20) {
+
+                    
+                    if !matchingMovies[currentIndex].posterImageName.isEmpty {
+                        Image(matchingMovies[currentIndex].posterImageName)
+                            .resizable()
+                            .scaledToFit()
+                            .frame(maxHeight: 300)
+                            .cornerRadius(12)
+                            .shadow(radius: 5)
+                    }
+                   
+                    
                     NavigationLink(destination: MovieDetailView(movie: matchingMovies[currentIndex])) {
                         Text(matchingMovies[currentIndex].title)
                             .font(.title)
@@ -25,7 +37,7 @@ struct MovieRecPage: View {
                             .cornerRadius(12)
                     }
 
-                    // Show current index / total
+                    
                     Text("\(currentIndex + 1)/\(matchingMovies.count)")
                         .font(.subheadline)
                         .foregroundColor(.secondary)
