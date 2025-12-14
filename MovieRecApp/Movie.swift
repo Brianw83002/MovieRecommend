@@ -28,7 +28,7 @@ enum Genre: String, CaseIterable, Identifiable, Codable {
 }
 
 struct Movie: Identifiable, Hashable, Codable {
-    var id: String { title } // Use title as unique identifier
+    var id: String { title }
     let title: String
     let genre: Genre
     let description: String

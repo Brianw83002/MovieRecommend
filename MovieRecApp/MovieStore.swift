@@ -40,4 +40,5 @@ class MovieStore: ObservableObject {
             movies = Movie.sampleMovies
         }
     }
+    
 }

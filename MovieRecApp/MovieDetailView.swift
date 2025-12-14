@@ -1,53 +1,98 @@
 import SwiftUI
 
+private enum DetailTheme {
+    static let bg = Color(red: 0.975, green: 0.975, blue: 0.985)
+    static let surface = Color.white
+    static let border = Color.black.opacity(0.08)
+
+    static let subtitle = Color.black.opacity(0.60)
+}
+
 struct MovieDetailView: View {
     let movie: Movie
+    @Environment(\.dismiss) private var dismiss
 
     var body: some View {
         ScrollView {
-            
-            VStack(alignment: .center, spacing: 16) {
-                
+            VStack(alignment: .leading, spacing: 18) {
+
                 if !movie.posterImageName.isEmpty {
                     Image(movie.posterImageName)
                         .resizable()
                         .scaledToFit()
-                        
-                        .frame(maxHeight: 400)
-                        .cornerRadius(12)
-                        .shadow(radius: 5)
+                        .frame(maxHeight: 380)
+                        .clipShape(RoundedRectangle(cornerRadius: 18, style: .continuous))
+                        .shadow(color: Color.black.opacity(0.10), radius: 16, x: 0, y: 10)
                 }
 
-                
-                VStack(alignment: .leading, spacing: 8) {
+                VStack(alignment: .leading, spacing: 10) {
                     Text(movie.title)
-                        .font(.largeTitle)
-                        .bold()
+                        .font(.title)
+                        .fontWeight(.semibold)
+                        .foregroundColor(.black)
 
-                    Text("\(movie.genre.rawValue) • ⭐️ \(movie.rating, specifier: "%.1f")")
-                        .font(.headline)
-                        .foregroundStyle(.secondary)
+                    Text("\(movie.genre.rawValue) • ⭐︎ \(movie.rating, specifier: "%.1f")")
+                        .font(.subheadline)
+                        .foregroundColor(DetailTheme.subtitle)
 
                     Divider()
+                        .padding(.vertical, 4)
 
                     Text("Description")
-                        .font(.title2)
-                        .bold()
+                        .font(.headline)
+                        .foregroundColor(.black)
 
                     Text(movie.description)
                         .font(.body)
+                        .foregroundColor(.black)
+                        .lineSpacing(4)
                 }
-                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(16)
+                .background(card)
             }
             .padding()
         }
-        .navigationTitle(movie.title)
-        
-        
+        .background(DetailTheme.bg.ignoresSafeArea())
+        .navigationTitle("")
         #if os(iOS)
-        
         .navigationBarTitleDisplayMode(.inline)
         #endif
-        
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: toolbarLeadingPlacement) {
+                Button {
+                    dismiss()
+                } label: {
+                    HStack(spacing: 6) {
+                        Image(systemName: "chevron.left")
+                            .foregroundColor(.white)
+                            .bold()
+                        
+                        Text("Return")
+                            .foregroundColor(.white)
+                            .bold()
+                    }
+                    .foregroundColor(.black)
+                }
+                .buttonStyle(.plain)
+            }
+        }
+    }
+
+    private var card: some View {
+        RoundedRectangle(cornerRadius: 20, style: .continuous)
+            .fill(DetailTheme.surface)
+            .overlay(
+                RoundedRectangle(cornerRadius: 20, style: .continuous)
+                    .stroke(DetailTheme.border, lineWidth: 1)
+            )
+    }
+
+    private var toolbarLeadingPlacement: ToolbarItemPlacement {
+        #if os(iOS)
+        return .topBarLeading
+        #else
+        return .navigation
+        #endif
     }
 }

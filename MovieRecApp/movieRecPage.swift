@@ -1,90 +1,213 @@
 import SwiftUI
 
+private enum RecTheme {
+    static let bg = Color(red: 0.975, green: 0.975, blue: 0.985)
+    static let surface = Color.white
+    static let border = Color.black.opacity(0.08)
+    static let accent = Color(red: 0.36, green: 0.56, blue: 0.98)
+    static let subtitle = Color.black.opacity(0.60)
+}
+
 struct MovieRecPage: View {
     @EnvironmentObject var movieStore: MovieStore
+    @Environment(\.dismiss) private var dismiss
+
     let selectedGenres: [Genre]
 
     @State private var matchingMovies: [Movie] = []
     @State private var currentIndex: Int = 0
 
     var body: some View {
-        VStack(spacing: 20) {
-            Text("Your Movie Recommendation")
-                .font(.largeTitle)
-                .fontWeight(.bold)
+        ScrollView {
+            VStack(spacing: 16) {
+                header
 
-            if !matchingMovies.isEmpty {
-                VStack(spacing: 20) {
-
-                    
-                    if !matchingMovies[currentIndex].posterImageName.isEmpty {
-                        Image(matchingMovies[currentIndex].posterImageName)
-                            .resizable()
-                            .scaledToFit()
-                            .frame(maxHeight: 300)
-                            .cornerRadius(12)
-                            .shadow(radius: 5)
-                    }
-                   
-                    
-                    NavigationLink(destination: MovieDetailView(movie: matchingMovies[currentIndex])) {
-                        Text(matchingMovies[currentIndex].title)
-                            .font(.title)
-                            .multilineTextAlignment(.center)
-                            .padding()
-                            .foregroundColor(.white)
-                            .background(Color.blue)
-                            .cornerRadius(12)
-                    }
-
-                    
-                    Text("\(currentIndex + 1)/\(matchingMovies.count)")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
+                if matchingMovies.isEmpty {
+                    emptyState
+                } else {
+                    movieCard(movie: matchingMovies[currentIndex])
+                    controls
                 }
-            } else {
-                Text("No movies found.")
-                    .font(.title3)
+
+                Spacer(minLength: 24)
             }
-
-            HStack(spacing: 40) {
-                Button(action: showPrevious) {
-                    Text("Previous")
-                        .frame(width: 120, height: 45)
-                        .background(Color.gray.opacity(0.2))
-                        .foregroundColor(.blue)
-                        .cornerRadius(10)
-                }
-                Button(action: showNext) {
-                    Text("Next")
-                        .frame(width: 120, height: 45)
-                        .background(Color.blue)
-                        .foregroundColor(.white)
-                        .cornerRadius(10)
-                }
-            }
-
-            Spacer()
+            .padding()
         }
-        .padding()
+        .background(RecTheme.bg.ignoresSafeArea())
+        .navigationBarBackButtonHidden(true)
+        .toolbar {
+            ToolbarItem(placement: leadingPlacement) {
+                Button {
+                    dismiss()
+                } label: {
+                    HStack(spacing: 8) {
+                        Image(systemName: "chevron.left")
+                        Text("Recommendation")
+                    }
+                    .font(.headline)
+                    .foregroundColor(.white)
+                }
+                .buttonStyle(.plain)
+            }
+
+            ToolbarItem(placement: trailingPlacement) {
+                Button("Edit Genres") { dismiss() }
+                    .foregroundColor(.black)
+            }
+
+            ToolbarItem(placement: trailingPlacement) {
+                Button("Home") {
+                    dismiss()
+                    dismiss()
+                }
+                .foregroundColor(.black)
+            }
+        }
+        .navigationTitle("")
+        #if os(iOS)
+        .navigationBarTitleDisplayMode(.inline)
+        #endif
+        .tint(RecTheme.accent)
         .onAppear(perform: loadMovies)
     }
 
+    private var leadingPlacement: ToolbarItemPlacement {
+        #if os(iOS)
+        return .topBarLeading
+        #else
+        return .navigation
+        #endif
+    }
+
+    private var trailingPlacement: ToolbarItemPlacement {
+        #if os(iOS)
+        return .topBarTrailing
+        #else
+        return .automatic
+        #endif
+    }
+
+    private var header: some View {
+        VStack(alignment: .leading, spacing: 6) {
+            Text("Your Movie Recommendation")
+                .font(.title2)
+                .fontWeight(.semibold)
+                .foregroundColor(.black)
+
+            Text(matchingMovies.isEmpty ? "No matches yet." : "\(currentIndex + 1) of \(matchingMovies.count)")
+                .font(.subheadline)
+                .foregroundColor(RecTheme.subtitle)
+        }
+        .frame(maxWidth: .infinity, alignment: .leading)
+    }
+
+    private var emptyState: some View {
+        VStack(spacing: 10) {
+            Text("No movies found.")
+                .font(.headline)
+                .foregroundColor(.black)
+
+            Text("Try selecting different genres.")
+                .font(.subheadline)
+                .foregroundColor(RecTheme.subtitle)
+
+            Button("Edit Genres") { dismiss() }
+                .buttonStyle(.borderedProminent)
+                .tint(RecTheme.accent)
+                .padding(.top, 8)
+        }
+        .padding(18)
+        .frame(maxWidth: .infinity, alignment: .center)
+        .background(card)
+    }
+
+    private func movieCard(movie: Movie) -> some View {
+        VStack(spacing: 14) {
+            if !movie.posterImageName.isEmpty {
+                Image(movie.posterImageName)
+                    .resizable()
+                    .scaledToFit()
+                    .frame(maxHeight: 320)
+                    .clipShape(RoundedRectangle(cornerRadius: 16, style: .continuous))
+            }
+
+            NavigationLink(destination: MovieDetailView(movie: movie)) {
+                HStack(spacing: 10) {
+                    Text(movie.title)
+                        .font(.headline)
+                        .fontWeight(.semibold)
+                        .lineLimit(2)
+                        .multilineTextAlignment(.leading)
+
+                    Spacer()
+
+                    Image(systemName: "chevron.right")
+                        .font(.subheadline)
+                }
+                .padding(.horizontal, 14)
+                .padding(.vertical, 12)
+                .frame(maxWidth: .infinity)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(RecTheme.accent)
+        }
+        .padding(14)
+        .background(card)
+    }
+
+    private var controls: some View {
+        HStack(spacing: 12) {
+            Button(action: showPrevious) {
+                HStack(spacing: 8) {
+                    Image(systemName: "chevron.left")
+                        .foregroundColor(.black)
+
+                    Text("Previous")
+                        .foregroundColor(.black)
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+            }
+            .buttonStyle(.bordered)
+            .disabled(matchingMovies.count <= 1)
+
+            Button(action: showNext) {
+                HStack(spacing: 8) {
+                    Text("Next")
+                    Image(systemName: "chevron.right")
+                }
+                .frame(maxWidth: .infinity)
+                .padding(.vertical, 12)
+            }
+            .buttonStyle(.borderedProminent)
+            .tint(RecTheme.accent)
+            .disabled(matchingMovies.count <= 1)
+        }
+        .padding(.top, 4)
+    }
+
+    private var card: some View {
+        RoundedRectangle(cornerRadius: 18, style: .continuous)
+            .fill(RecTheme.surface)
+            .overlay(
+                RoundedRectangle(cornerRadius: 18, style: .continuous)
+                    .stroke(RecTheme.border, lineWidth: 1)
+            )
+            .shadow(color: Color.black.opacity(0.06), radius: 14, x: 0, y: 8)
+    }
+
     private func loadMovies() {
-        let filtered = movieStore.movies.filter { selectedGenres.contains($0.genre) }
-        matchingMovies = filtered
-        if !matchingMovies.isEmpty { currentIndex = 0 }
+        matchingMovies = movieStore.movies.filter { selectedGenres.contains($0.genre) }
+        currentIndex = 0
     }
 
     private func showNext() {
-        if !matchingMovies.isEmpty {
-            currentIndex = (currentIndex + 1) % matchingMovies.count
-        }
+        guard !matchingMovies.isEmpty else { return }
+        currentIndex = min(currentIndex + 1, matchingMovies.count - 1)
     }
 
     private func showPrevious() {
-        if !matchingMovies.isEmpty {
-            currentIndex = (currentIndex - 1 + matchingMovies.count) % matchingMovies.count
-        }
+        guard !matchingMovies.isEmpty else { return }
+        currentIndex = max(currentIndex - 1, 0)
     }
 }
