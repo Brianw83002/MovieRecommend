@@ -10,11 +10,16 @@ import SwiftUI
 @main
 struct MovieRecAppApp: App {
     @StateObject private var movieStore = MovieStore()
-    
+
     var body: some Scene {
         WindowGroup {
-            ContentView()
-                .environmentObject(movieStore)
+            NavigationStack {
+                ContentView()
+                    .environmentObject(movieStore)
+            }
+            .toolbar(.hidden, for: .navigationBar)
+            .navigationBarTitleDisplayMode(.inline)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
         }
     }
 }

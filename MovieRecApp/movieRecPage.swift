@@ -18,73 +18,43 @@ struct MovieRecPage: View {
     @State private var currentIndex: Int = 0
 
     var body: some View {
-        ScrollView {
-            VStack(spacing: 16) {
-                header
+        ZStack {
+            RecTheme.bg.ignoresSafeArea()
 
-                if matchingMovies.isEmpty {
-                    emptyState
-                } else {
-                    movieCard(movie: matchingMovies[currentIndex])
-                    controls
+            ScrollView {
+                VStack(spacing: 16) {
+                    header
+
+                    if matchingMovies.isEmpty {
+                        emptyState
+                    } else {
+                        movieCard(movie: matchingMovies[currentIndex])
+                        controls
+                    }
                 }
-
-                Spacer(minLength: 24)
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .top)
             }
-            .padding()
         }
-        .background(RecTheme.bg.ignoresSafeArea())
+        .frame(maxWidth: .infinity, maxHeight: .infinity) // <-- forces full-screen layout
         .navigationBarBackButtonHidden(true)
         .toolbar {
-            ToolbarItem(placement: leadingPlacement) {
-                Button {
-                    dismiss()
-                } label: {
+            ToolbarItem(placement: .topBarLeading) {
+                Button { dismiss() } label: {
                     HStack(spacing: 8) {
                         Image(systemName: "chevron.left")
                         Text("Recommendation")
                     }
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundColor(.black)
                 }
                 .buttonStyle(.plain)
             }
-
-            ToolbarItem(placement: trailingPlacement) {
-                Button("Edit Genres") { dismiss() }
-                    .foregroundColor(.black)
-            }
-
-            ToolbarItem(placement: trailingPlacement) {
-                Button("Home") {
-                    dismiss()
-                    dismiss()
-                }
-                .foregroundColor(.black)
-            }
         }
         .navigationTitle("")
-        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
-        #endif
         .tint(RecTheme.accent)
         .onAppear(perform: loadMovies)
-    }
-
-    private var leadingPlacement: ToolbarItemPlacement {
-        #if os(iOS)
-        return .topBarLeading
-        #else
-        return .navigation
-        #endif
-    }
-
-    private var trailingPlacement: ToolbarItemPlacement {
-        #if os(iOS)
-        return .topBarTrailing
-        #else
-        return .automatic
-        #endif
     }
 
     private var header: some View {
@@ -159,11 +129,8 @@ struct MovieRecPage: View {
         HStack(spacing: 12) {
             Button(action: showPrevious) {
                 HStack(spacing: 8) {
-                    Image(systemName: "chevron.left")
-                        .foregroundColor(.black)
-
-                    Text("Previous")
-                        .foregroundColor(.black)
+                    Image(systemName: "chevron.left").foregroundColor(.black)
+                    Text("Previous").foregroundColor(.black)
                 }
                 .frame(maxWidth: .infinity)
                 .padding(.vertical, 12)

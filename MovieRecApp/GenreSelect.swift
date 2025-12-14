@@ -20,45 +20,44 @@ struct GenreSelect: View {
     @State private var goToMoviePage = false
 
     private let genres = Genre.allCases
-    private let columns = [
-        GridItem(.adaptive(minimum: 170), spacing: 12)
-    ]
+    private let columns = [GridItem(.adaptive(minimum: 170), spacing: 12)]
 
     var body: some View {
-        ScrollView {
-            VStack(alignment: .leading, spacing: 14) {
-                header
+        ZStack {
+            Theme.bg.ignoresSafeArea()
 
-                LazyVGrid(columns: columns, spacing: 12) {
-                    ForEach(genres) { genre in
-                        GenreRowChip(
-                            title: genre.rawValue,
-                            isSelected: selectedGenres.contains(genre),
-                            accent: Theme.accent
-                        ) {
-                            toggleSelection(for: genre)
+            ScrollView {
+                VStack(alignment: .leading, spacing: 14) {
+                    header
+
+                    LazyVGrid(columns: columns, spacing: 12) {
+                        ForEach(genres) { genre in
+                            GenreRowChip(
+                                title: genre.rawValue,
+                                isSelected: selectedGenres.contains(genre),
+                                accent: Theme.accent
+                            ) {
+                                toggleSelection(for: genre)
+                            }
                         }
                     }
                 }
-
-                Spacer(minLength: 84)
+                .padding()
+                .frame(maxWidth: .infinity, alignment: .top)
             }
-            .padding()
         }
-        .background(Theme.bg.ignoresSafeArea())
+        .frame(maxWidth: .infinity, maxHeight: .infinity) // <-- forces full-screen layout
         .safeAreaInset(edge: .bottom) { bottomBar }
         .navigationBarBackButtonHidden(true)
         .toolbar {
             ToolbarItem(placement: leadingPlacement) {
-                Button {
-                    dismiss()
-                } label: {
+                Button { dismiss() } label: {
                     HStack(spacing: 8) {
                         Image(systemName: "chevron.left")
                         Text("Genres")
                     }
                     .font(.headline)
-                    .foregroundColor(.white)
+                    .foregroundColor(.black)
                 }
                 .buttonStyle(.plain)
             }
@@ -68,9 +67,7 @@ struct GenreSelect: View {
             }
         }
         .navigationTitle("")
-        #if os(iOS)
         .navigationBarTitleDisplayMode(.inline)
-        #endif
         .tint(Theme.accent)
         .alert("Please select at least one genre", isPresented: $showAlert) {
             Button("OK", role: .cancel) {}
@@ -81,21 +78,8 @@ struct GenreSelect: View {
         }
     }
 
-    private var leadingPlacement: ToolbarItemPlacement {
-        #if os(iOS)
-        return .topBarLeading
-        #else
-        return .navigation
-        #endif
-    }
-
-    private var trailingPlacement: ToolbarItemPlacement {
-        #if os(iOS)
-        return .topBarTrailing
-        #else
-        return .automatic
-        #endif
-    }
+    private var leadingPlacement: ToolbarItemPlacement { .topBarLeading }
+    private var trailingPlacement: ToolbarItemPlacement { .topBarTrailing }
 
     private var header: some View {
         VStack(alignment: .leading, spacing: 6) {
@@ -114,8 +98,7 @@ struct GenreSelect: View {
         VStack(spacing: 10) {
             Button { handleContinue() } label: {
                 HStack {
-                    Text("Continue")
-                        .fontWeight(.semibold)
+                    Text("Continue").fontWeight(.semibold)
                     Spacer()
                     Image(systemName: "arrow.right")
                 }
@@ -140,7 +123,7 @@ struct GenreSelect: View {
                 selectedGenres.removeAll()
             }
         }
-        .foregroundColor(.white)
+        .foregroundColor(.black)
         .bold()
         .buttonStyle(.plain)
         .disabled(selectedGenres.isEmpty)
@@ -148,20 +131,14 @@ struct GenreSelect: View {
 
     private func toggleSelection(for genre: Genre) {
         withAnimation(.spring(response: 0.22, dampingFraction: 0.95)) {
-            if selectedGenres.contains(genre) {
-                selectedGenres.remove(genre)
-            } else {
-                selectedGenres.insert(genre)
-            }
+            if selectedGenres.contains(genre) { selectedGenres.remove(genre) }
+            else { selectedGenres.insert(genre) }
         }
     }
 
     private func handleContinue() {
-        if selectedGenres.isEmpty {
-            showAlert = true
-        } else {
-            goToMoviePage = true
-        }
+        if selectedGenres.isEmpty { showAlert = true }
+        else { goToMoviePage = true }
     }
 }
 
